@@ -60,7 +60,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
                 <label className="field"><span>Tagline singkat</span><input name="tagline" required maxLength={160} defaultValue={team.project?.tagline ?? ""} placeholder="Jelaskan value proyek dalam satu kalimat" /></label>
                 <label className="field"><span>Deskripsi proyek</span><textarea name="description" required minLength={20} maxLength={3000} rows={7} defaultValue={team.project?.description ?? ""} placeholder="Masalah yang diselesaikan, fitur utama, dan teknologi yang digunakan." /></label>
                 <div className="form-row form-row-three">
-                  <label className="field"><span>Nomor booth</span><input name="boothNumber" type="number" min={1} max={99} defaultValue={team.project?.boothNumber ?? ""} placeholder="Opsional" /></label>
+                  <label className="field"><span>Nomor booth</span><input name="boothNumber" type="number" min={1} max={14} defaultValue={team.project?.boothNumber ?? ""} placeholder="Opsional" /></label>
                   <label className="field"><span>Link demo</span><input name="demoUrl" type="url" defaultValue={team.project?.demoUrl ?? ""} placeholder="https://" /></label>
                   <label className="field"><span>Repository</span><input name="repoUrl" type="url" defaultValue={team.project?.repoUrl ?? ""} placeholder="https://github.com/..." /></label>
                 </div>

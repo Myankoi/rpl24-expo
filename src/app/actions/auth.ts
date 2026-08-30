@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { createAdminSupabase } from "@/lib/supabase/admin";
 import { createServerSupabase } from "@/lib/supabase/server";
 
 export type AuthState = { error?: string };
@@ -39,14 +40,26 @@ export async function registerAction(_: AuthState, formData: FormData): Promise<
   });
   if (!parsed.success) return { error: parsed.error.issues[0]?.message };
 
-  const supabase = await createServerSupabase();
-  const { data, error } = await supabase.auth.signUp({
+  // Akun submission dibuat dari server dan langsung dikonfirmasi. Ini
+  // menghindari antrean email konfirmasi saat semua tim mendaftar bersamaan.
+  const admin = createAdminSupabase();
+  const { error } = await admin.auth.admin.createUser({
     email: parsed.data.email,
     password: parsed.data.password,
-    options: { data: { full_name: parsed.data.fullName, class_name: parsed.data.className } },
+    email_confirm: true,
+    user_metadata: { full_name: parsed.data.fullName, class_name: parsed.data.className },
   });
-  if (error) return { error: error.message };
-  if (!data.session) redirect("/login?message=Cek+email+kamu+untuk+konfirmasi+akun");
+  if (error?.code === "email_exists" || error?.message.toLowerCase().includes("already")) {
+    return { error: "Email sudah terdaftar. Silakan masuk." };
+  }
+  if (error) return { error: "Akun belum berhasil dibuat. Coba kembali." };
+
+  const supabase = await createServerSupabase();
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: parsed.data.email,
+    password: parsed.data.password,
+  });
+  if (signInError) redirect("/login?message=Akun+berhasil+dibuat.+Silakan+masuk");
   redirect("/dashboard");
 }
 
@@ -55,4 +68,3 @@ export async function logoutAction() {
   await supabase.auth.signOut();
   redirect("/");
 }
-

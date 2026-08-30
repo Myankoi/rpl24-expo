@@ -48,7 +48,7 @@ export async function updateProjectStatusAction(formData: FormData) {
   });
   if (!parsed.success) go("Data review proyek tidak valid.", "error");
   const boothNumber = parsed.data.boothNumber ? Number(parsed.data.boothNumber) : null;
-  if (parsed.data.status === "approved" && (!boothNumber || !Number.isInteger(boothNumber) || boothNumber < 1 || boothNumber > 99)) {
+  if (parsed.data.status === "approved" && (!boothNumber || !Number.isInteger(boothNumber) || boothNumber < 1 || boothNumber > 14)) {
     go("Isi nomor booth sebelum menyetujui proyek.", "error");
   }
   const admin = createAdminSupabase();
@@ -62,4 +62,3 @@ export async function updateProjectStatusAction(formData: FormData) {
   revalidatePath("/", "layout");
   go(parsed.data.status === "approved" ? "Proyek disetujui dan sudah tayang di katalog." : "Status proyek diperbarui.");
 }
-

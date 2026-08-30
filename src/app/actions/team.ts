@@ -108,7 +108,7 @@ export async function saveProjectAction(formData: FormData) {
   }
 
   const boothNumber = parsed.data.boothNumber ? Number(parsed.data.boothNumber) : null;
-  if (boothNumber !== null && (!Number.isInteger(boothNumber) || boothNumber < 1 || boothNumber > 99)) go("Nomor booth tidak valid.", "error");
+  if (boothNumber !== null && (!Number.isInteger(boothNumber) || boothNumber < 1 || boothNumber > 14)) go("Nomor booth tidak valid.", "error");
   const slug = existing?.slug ?? `${slugify(parsed.data.title)}-${team.id.slice(0, 6)}`;
   const projectData = {
     team_id: team.id,
@@ -133,4 +133,3 @@ export async function saveProjectAction(formData: FormData) {
   revalidatePath("/catalog");
   go("Proyek dikirim ke panitia untuk direview.");
 }
-

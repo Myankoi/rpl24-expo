@@ -44,6 +44,7 @@ export async function POST(request: Request) {
   }
   if (result === "closed") return NextResponse.json({ message: "Voting sedang ditutup." }, { status: 403 });
   if (result === "invalid_project") return NextResponse.json({ message: "Proyek tidak ditemukan." }, { status: 404 });
+  if (result === "invalid_voter") return NextResponse.json({ message: "Nomor identitas tidak valid." }, { status: 400 });
   if (error || result !== "success") {
     console.error("Vote insert failed", error?.code);
     return NextResponse.json({ message: "Suara belum tersimpan. Coba sekali lagi." }, { status: 500 });

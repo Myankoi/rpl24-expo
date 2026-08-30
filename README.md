@@ -27,8 +27,8 @@ Buka `http://localhost:3000`.
 ## Setup Supabase
 
 1. Buat project Supabase.
-2. Buka **SQL Editor**, tempel seluruh isi `supabase/migrations/001_initial.sql`, lalu jalankan satu kali.
-3. Dari **Project Settings > API**, salin Project URL, anon key, dan service role key ke `.env.local`.
+2. Terapkan seluruh file di `supabase/migrations/` sesuai urutan nama file, atau jalankan `supabase db push` setelah project di-link.
+3. Dari **Project Settings > API Keys**, salin publishable key dan secret key ke `.env.local`.
 4. Untuk persiapan acara yang singkat, buka **Authentication > Providers > Email** lalu nonaktifkan **Confirm email** agar akun peserta langsung aktif.
 5. Isi email panitia pada `ADMIN_EMAILS`. Pisahkan beberapa email dengan koma tanpa spasi.
 
@@ -36,8 +36,8 @@ Contoh:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://project-ref.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SECRET_KEY=sb_secret_...
 VOTER_HASH_SECRET=hasil-random-minimal-32-karakter
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ADMIN_EMAILS=panitia@sekolah.sch.id
@@ -49,7 +49,7 @@ Buat rahasia voter dengan:
 openssl rand -hex 32
 ```
 
-Jangan pernah membagikan atau memasukkan `SUPABASE_SERVICE_ROLE_KEY` dan `VOTER_HASH_SECRET` ke repository.
+Jangan pernah membagikan atau memasukkan `SUPABASE_SECRET_KEY` dan `VOTER_HASH_SECRET` ke repository.
 
 ## Deploy Vercel
 

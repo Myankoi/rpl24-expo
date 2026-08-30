@@ -1,12 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Bars3Icon, CubeTransparentIcon, Squares2X2Icon, TrophyIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, Squares2X2Icon, TrophyIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 
 export function Header() {
   return (
     <header className="site-header">
       <div className="nav-wrap">
         <Link href="/" className="brand" aria-label="RPL Expo beranda">
-          <span className="brand-icon"><CubeTransparentIcon /></span>
+          <span className="brand-icon"><Image src="/rpl-smkn24-logo.png" alt="" width={36} height={36} priority /></span>
           <span><strong>RPL EXPO</strong><small>2026</small></span>
         </Link>
         <details className="nav-details">
