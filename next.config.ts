@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  poweredByHeader: false,
+  experimental: {
+    serverActions: { bodySizeLimit: "4mb" },
+    useTypeScriptCli: false,
+  },
 };
 
 export default nextConfig;

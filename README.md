@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RPL Expo 2026
 
-## Getting Started
+Aplikasi katalog, manajemen submission, dan voting People's Choice untuk RPL Expo. Dibangun dengan Next.js 16, Supabase, dan Vercel.
 
-First, run the development server:
+## Fitur
+
+- Katalog publik 14 proyek dan halaman detail tiap booth
+- Voting tanpa login: pilih proyek, isi NIS/NIP, konfirmasi
+- Satu identitas hanya dapat memberikan satu suara; identitas disimpan sebagai HMAC hash
+- Login peserta, buat/gabung tim, dan upload submission proyek
+- Panel admin untuk review proyek, nomor booth, buka/tutup voting, dan publikasi hasil
+- Poster QR katalog/voting siap cetak
+- Winner reveal fullscreen dengan countdown, podium, animasi, dan confetti
+
+## Menjalankan secara lokal
+
+Gunakan Node.js 20.9 atau lebih baru.
 
 ```bash
+cp .env.example .env.local
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Setup Supabase
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Buat project Supabase.
+2. Buka **SQL Editor**, tempel seluruh isi `supabase/migrations/001_initial.sql`, lalu jalankan satu kali.
+3. Dari **Project Settings > API**, salin Project URL, anon key, dan service role key ke `.env.local`.
+4. Untuk persiapan acara yang singkat, buka **Authentication > Providers > Email** lalu nonaktifkan **Confirm email** agar akun peserta langsung aktif.
+5. Isi email panitia pada `ADMIN_EMAILS`. Pisahkan beberapa email dengan koma tanpa spasi.
 
-## Learn More
+Contoh:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+VOTER_HASH_SECRET=hasil-random-minimal-32-karakter
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+ADMIN_EMAILS=panitia@sekolah.sch.id
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Buat rahasia voter dengan:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+openssl rand -hex 32
+```
 
-## Deploy on Vercel
+Jangan pernah membagikan atau memasukkan `SUPABASE_SERVICE_ROLE_KEY` dan `VOTER_HASH_SECRET` ke repository.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Import repository ini ke Vercel dengan **Root Directory** `rpl24-expo` bila repository Git berada satu tingkat di atas folder ini.
+2. Masukkan keenam environment variable di atas untuk environment Production.
+3. Ubah `NEXT_PUBLIC_SITE_URL` menjadi domain produksi, misalnya `https://rpl-expo.vercel.app`.
+4. Deploy, lalu buat akun dengan email yang tercantum di `ADMIN_EMAILS`.
+
+Build check:
+
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+```
+
+## Urutan operasional acara
+
+1. Tim membuat akun, membuat/gabung tim, lalu ketua mengirim proyek.
+2. Admin membuka `/admin`, mengisi nomor booth dan meng-approve seluruh proyek.
+3. Admin mencetak QR dari `/admin/qr` dan meletakkannya di pintu/area auditorium.
+4. Setelah pengunjung keluar menuju booth, admin menekan **Buka voting**.
+5. Setelah waktu habis, admin menekan **Tutup voting**.
+6. Tampilkan `/admin/reveal` di layar utama dan tekan **Mulai pengumuman**.
+7. Setelah reveal selesai, admin menekan **Publikasikan hasil** agar `/results` terbuka untuk publik.
+
+## Catatan voting
+
+Database memakai unique constraint dan fungsi transaksi atomik, sehingga dua request bersamaan dari identitas yang sama tidak dapat menghasilkan dua vote. NIS/NIP tidak disimpan mentah. Sistem sengaja tidak memvalidasi nomor terhadap daftar siswa agar antrean voting tetap sederhana; jika validasi resmi dibutuhkan, tambahkan whitelist identitas sebelum acara.
