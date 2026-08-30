@@ -13,10 +13,6 @@ export function slugify(value: string) {
     .slice(0, 70);
 }
 
-export function normalizeIdentity(value: string) {
-  return value.trim().toUpperCase().replace(/\s+/g, "");
-}
-
 export function isValidHttpUrl(value: string) {
   if (!value) return true;
   try {

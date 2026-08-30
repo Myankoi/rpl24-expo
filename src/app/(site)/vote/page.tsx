@@ -10,8 +10,8 @@ export default async function VotePage() {
     <section className="page-section section-shell">
       <div className="page-heading voting-heading">
         <span className="eyebrow">PEOPLE&apos;S CHOICE AWARD</span>
-        <h1>{settings.votingOpen ? "Satu pilihan. Satu suara." : "Voting belum dibuka."}</h1>
-        <p>{settings.votingOpen ? "Pilih proyek, isi NIS atau NIP, dan selesai. Tidak perlu membuat akun." : "Kamu tetap bisa melihat semua proyek sambil menunggu panitia membuka voting."}</p>
+        <h1>{settings.votingOpen ? "Satu perangkat. Satu suara." : "Voting belum dibuka."}</h1>
+        <p>{settings.votingOpen ? "Pilih proyek, tap vote, konfirmasi — selesai. Tidak perlu membuat akun." : "Kamu tetap bisa melihat semua proyek sambil menunggu panitia membuka voting."}</p>
       </div>
       <ProjectExplorer projects={projects} votingOpen={settings.votingOpen} />
     </section>

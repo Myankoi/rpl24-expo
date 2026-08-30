@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRightIcon, FunnelIcon, MagnifyingGlassIcon, RocketLaunchIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
+import { ArrowRightIcon, CheckCircleIcon, FunnelIcon, MagnifyingGlassIcon, RocketLaunchIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import type { PublicProject } from "@/lib/types";
+import { hasVotedLocally } from "@/lib/fingerprint";
 import { VoteModal } from "@/components/vote-modal";
 
 function ProjectCover({ project }: { project: PublicProject }) {
@@ -20,13 +21,16 @@ export function ProjectExplorer({ projects, votingOpen, compact = false }: { pro
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("Semua");
   const [selected, setSelected] = useState<PublicProject | null>(null);
-  const closeModal = useCallback(() => setSelected(null), []);
+  const [voted, setVoted] = useState(false);
+  const closeModal = useCallback(() => { setSelected(null); setVoted(hasVotedLocally()); }, []);
   const categories = useMemo(() => ["Semua", ...Array.from(new Set(projects.map((project) => project.category)))], [projects]);
   const visible = useMemo(() => projects.filter((project) => {
     const keyword = query.toLowerCase();
     const matchesText = `${project.title} ${project.teamName} ${project.className} ${project.tagline}`.toLowerCase().includes(keyword);
     return matchesText && (category === "Semua" || project.category === category);
   }), [projects, query, category]);
+
+  useEffect(() => { setVoted(hasVotedLocally()); }, []);
 
   return (
     <>
@@ -48,7 +52,11 @@ export function ProjectExplorer({ projects, votingOpen, compact = false }: { pro
                 <div className="project-team"><strong>{project.teamName}</strong><span>{project.className}</span></div>
                 <div className="project-actions">
                   <Link className="button button-ghost button-compact" href={`/projects/${project.slug}`}>Detail <ArrowRightIcon /></Link>
-                  <button className="button button-primary button-compact" type="button" onClick={() => setSelected(project)} disabled={!votingOpen}><RocketLaunchIcon />{votingOpen ? "Vote" : "Ditutup"}</button>
+                  {voted ? (
+                    <span className="badge badge-voted"><CheckCircleIcon />Sudah voting</span>
+                  ) : (
+                    <button className="button button-primary button-compact" type="button" onClick={() => setSelected(project)} disabled={!votingOpen}><RocketLaunchIcon />{votingOpen ? "Vote" : "Ditutup"}</button>
+                  )}
                 </div>
               </div>
             </article>
