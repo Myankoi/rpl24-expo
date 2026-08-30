@@ -32,12 +32,22 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
       <div className="admin-table-card">
         <div className="table-heading"><div><span className="kicker">PROJECT REVIEW</span><h2>Submission proyek</h2></div><span>{overview.projects.length} submission</span></div>
         {overview.projects.length ? <div className="admin-project-list">{overview.projects.map((project) => (
-          <div className="admin-project-row" key={project.id}>
-            <div className="admin-project-main"><span className="booth-mini">{project.boothNumber?.toString().padStart(2, "0") ?? "—"}</span><div><strong>{project.title}</strong><small>{project.teamName} · {project.className}</small></div></div>
-            <div className="admin-project-votes"><strong>{project.voteCount}</strong><small>suara</small></div>
-            <StatusBadge status={project.status} />
-            <form action={updateProjectStatusAction} className="review-form"><input type="hidden" name="projectId" value={project.id} /><input aria-label="Nomor booth" name="boothNumber" type="number" min={1} max={14} defaultValue={project.boothNumber ?? ""} placeholder="Booth" /><select name="status" defaultValue={project.status === "draft" ? "submitted" : project.status}><option value="submitted">Review</option><option value="approved">Approve</option><option value="rejected">Revisi</option></select><button className="button button-ghost button-compact" type="submit"><CheckBadgeIcon />Simpan</button></form>
-          </div>
+          <article className="admin-project-row" key={project.id}>
+            <div className="admin-project-main">
+              <span className="booth-mini">{project.boothNumber?.toString().padStart(2, "0") ?? "—"}</span>
+              <div className="admin-project-info">
+                <div className="admin-project-title"><strong>{project.title}</strong><StatusBadge status={project.status} /></div>
+                <small>{project.teamName} · {project.className}</small>
+                <div className="admin-project-votes"><ChartBarIcon /><strong>{project.voteCount}</strong><span>suara masuk</span></div>
+              </div>
+            </div>
+            <form action={updateProjectStatusAction} className="review-form">
+              <input type="hidden" name="projectId" value={project.id} />
+              <label className="review-field"><span>Nomor booth</span><input aria-label="Nomor booth" name="boothNumber" type="number" min={1} max={14} defaultValue={project.boothNumber ?? ""} placeholder="1–14" /></label>
+              <label className="review-field"><span>Keputusan</span><select name="status" defaultValue={project.status === "draft" ? "submitted" : project.status}><option value="submitted">Menunggu review</option><option value="approved">Setujui proyek</option><option value="rejected">Minta revisi</option></select></label>
+              <button className="button button-primary button-compact review-submit" type="submit"><CheckBadgeIcon />Simpan review</button>
+            </form>
+          </article>
         ))}</div> : <div className="empty-state compact"><Squares2X2Icon /><h3>Belum ada submission</h3><p>Proyek peserta akan muncul di sini.</p></div>}
       </div>
     </section>

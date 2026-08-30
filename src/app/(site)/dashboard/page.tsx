@@ -2,6 +2,7 @@ import { ArrowRightStartOnRectangleIcon, ClipboardDocumentIcon, CloudArrowUpIcon
 import { redirect } from "next/navigation";
 import { createTeamAction, joinTeamAction, saveProjectAction } from "@/app/actions/team";
 import { logoutAction } from "@/app/actions/auth";
+import { CopyCodeButton } from "@/components/copy-code-button";
 import { StatusBadge } from "@/components/status-badge";
 import { SubmitButton } from "@/components/submit-button";
 import { getDashboardTeam, requireUser } from "@/lib/dal";
@@ -45,7 +46,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             <div className="dashboard-card team-card">
               <div className="team-card-head"><div className="card-icon"><UserGroupIcon /></div><StatusBadge status={team.project?.status ?? "draft"} /></div>
               <span className="kicker">TIM KAMU</span><h2>{team.name}</h2><p>{team.className}</p>
-              <div className="join-code"><span>Kode undangan</span><strong>{team.joinCode}</strong><small><ClipboardDocumentIcon />Bagikan ke anggota tim</small></div>
+              <div className="join-code"><span>Kode undangan</span><div className="join-code-row"><strong>{team.joinCode}</strong><CopyCodeButton value={team.joinCode} /></div><small><ClipboardDocumentIcon />Bagikan ke anggota tim</small></div>
               <div className="member-list"><span>Anggota · {team.members.length}</span>{team.members.map((member) => <div key={member.id}><span>{member.fullName.charAt(0)}</span><p><strong>{member.fullName}</strong><small>{member.className}</small></p>{member.id === team.leaderId && <em>Ketua</em>}</div>)}</div>
             </div>
           </aside>
