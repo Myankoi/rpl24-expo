@@ -10,9 +10,13 @@ type RevealStep = "intro" | "countdown" | "winner" | "complete";
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-export function WinnerReveal({ ranking }: { ranking: RankingProject[] }) {
-  const podium = useMemo(() => ranking.slice(0, 3), [ranking]);
-  const revealOrder = useMemo(() => [...podium].reverse(), [podium]);
+export function WinnerReveal({ ranking, eventName }: { ranking: RankingProject[]; eventName: string }) {
+  const podium = useMemo(() => ranking.reduce<Array<RankingProject & { rank: number }>>((acc, project, index) => {
+    const previous = acc.at(-1);
+    const rank = previous?.voteCount === project.voteCount ? previous.rank : index + 1;
+    return acc.concat({ ...project, rank });
+  }, []).filter((project) => project.rank <= 3), [ranking]);
+  const revealOrder = useMemo(() => [...podium].sort((a, b) => b.rank - a.rank), [podium]);
   const [step, setStep] = useState<RevealStep>("intro");
   const [countdown, setCountdown] = useState(3);
   const [current, setCurrent] = useState<RankingProject | null>(null);
@@ -39,7 +43,7 @@ export function WinnerReveal({ ranking }: { ranking: RankingProject[] }) {
     }
     for (let index = 0; index < revealOrder.length; index += 1) {
       const project = revealOrder[index];
-      const place = podium.length - index;
+      const place = project.rank;
       setCurrent(project);
       setRank(place);
       setStep("winner");
@@ -67,7 +71,7 @@ export function WinnerReveal({ ranking }: { ranking: RankingProject[] }) {
         {step === "intro" && (
           <motion.section key="intro" className="reveal-intro" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}>
             <motion.div className="reveal-trophy" animate={{ y: [0, -12, 0], rotate: [-2, 2, -2] }} transition={{ repeat: Infinity, duration: 3.2 }}><TrophyIcon /></motion.div>
-            <span className="eyebrow">RPL EXPO 2026</span><h1>People&apos;s Choice<br /><span>Winner Reveal</span></h1><p>{ranking.length} proyek · {ranking.reduce((sum, item) => sum + item.voteCount, 0)} suara masuk</p>
+            <span className="eyebrow">{eventName}</span><h1>People&apos;s Choice<br /><span>Winner Reveal</span></h1><p>{ranking.length} proyek · {ranking.reduce((sum, item) => sum + item.voteCount, 0)} suara masuk</p>
             <button className="button stage-start" type="button" onClick={start} disabled={!podium.length}><PlayIcon />{podium.length ? "Mulai pengumuman" : "Belum ada hasil"}</button>
           </motion.section>
         )}
@@ -85,11 +89,7 @@ export function WinnerReveal({ ranking }: { ranking: RankingProject[] }) {
           <motion.section key="complete" className="podium-stage" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <span className="eyebrow">CONGRATULATIONS</span><h1>Our winners!</h1>
             <div className="stage-podium">
-              {[2, 1, 3].map((place) => {
-                const item = podium[place - 1];
-                if (!item) return null;
-                return <motion.div key={item.id} className={`podium-item podium-${place}`} initial={{ y: 160, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: place === 1 ? 0.2 : place === 2 ? 0.45 : 0.65, type: "spring" }}><span>{place}</span><h2>{item.title}</h2><p>{item.teamName}</p><strong>{item.voteCount} suara</strong></motion.div>;
-              })}
+              {[2, 1, 3].flatMap((place) => podium.filter((item) => item.rank === place)).map((item, index) => <motion.div key={item.id} className={`podium-item podium-${item.rank}`} initial={{ y: 160, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: index * 0.16, type: "spring" }}><span>{item.rank}</span><h2>{item.title}</h2><p>{item.teamName}</p><strong>{item.voteCount} suara</strong></motion.div>)}
             </div>
             <button className="stage-restart" type="button" onClick={restart}><ArrowUturnLeftIcon />Ulangi reveal</button>
           </motion.section>

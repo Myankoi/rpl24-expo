@@ -13,7 +13,7 @@ function ProjectCover({ project }: { project: PublicProject }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img className="project-cover" src={project.coverUrl} alt={`Cover ${project.title}`} />
   ) : (
-    <div className="project-cover project-cover-fallback"><span>{project.boothNumber?.toString().padStart(2, "0") ?? "RPL"}</span><small>PROJECT</small></div>
+    <div className="project-cover project-cover-fallback"><span>{project.boothLabel ?? project.boothNumber?.toString().padStart(2, "0") ?? "RPL"}</span><small>PROJECT</small></div>
   );
 }
 
@@ -22,7 +22,7 @@ export function ProjectExplorer({ projects, votingOpen, compact = false }: { pro
   const [category, setCategory] = useState("Semua");
   const [selected, setSelected] = useState<PublicProject | null>(null);
   const [voted, setVoted] = useState(false);
-  const closeModal = useCallback(() => { setSelected(null); setVoted(hasVotedLocally()); }, []);
+  const closeModal = useCallback(() => { setSelected(null); setVoted(hasVotedLocally(projects[0]?.eventSlug ?? "active")); }, [projects]);
   const categories = useMemo(() => ["Semua", ...Array.from(new Set(projects.map((project) => project.category)))], [projects]);
   const visible = useMemo(() => projects.filter((project) => {
     const keyword = query.toLowerCase();
@@ -30,7 +30,11 @@ export function ProjectExplorer({ projects, votingOpen, compact = false }: { pro
     return matchesText && (category === "Semua" || project.category === category);
   }), [projects, query, category]);
 
-  useEffect(() => { setVoted(hasVotedLocally()); }, []);
+  useEffect(() => {
+    // localStorage is an external client-only source of truth for the badge.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setVoted(hasVotedLocally(projects[0]?.eventSlug ?? "active"));
+  }, [projects]);
 
   return (
     <>
@@ -46,12 +50,12 @@ export function ProjectExplorer({ projects, votingOpen, compact = false }: { pro
             <article className="project-card" key={project.id}>
               <ProjectCover project={project} />
               <div className="project-card-body">
-                <div className="project-meta"><span>Booth {project.boothNumber?.toString().padStart(2, "0") ?? "—"}</span><span>{project.category}</span></div>
+                <div className="project-meta"><span>Booth {project.boothLabel ?? project.boothNumber?.toString().padStart(2, "0") ?? "—"}</span><span>{project.category}</span></div>
                 <h3>{project.title}</h3>
                 <p>{project.tagline}</p>
                 <div className="project-team"><strong>{project.teamName}</strong><span>{project.className}</span></div>
                 <div className="project-actions">
-                  <Link className="button button-ghost button-compact" href={`/projects/${project.slug}`}>Detail <ArrowRightIcon /></Link>
+                  <Link className="button button-ghost button-compact" href={project.eventSlug ? `/editions/${project.eventSlug}/projects/${project.slug}` : `/projects/${project.slug}`}>Detail <ArrowRightIcon /></Link>
                   {voted ? (
                     <span className="badge badge-voted"><CheckCircleIcon />Sudah voting</span>
                   ) : (

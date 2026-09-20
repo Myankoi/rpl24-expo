@@ -14,11 +14,11 @@ export default async function RegisterPage() {
       <div className="auth-copy">
         <span className="eyebrow">SUBMIT YOUR PROJECT</span>
         <h1>Satu akun untuk satu anggota tim.</h1>
-        <p>Setelah mendaftar, buat tim baru atau masukkan kode undangan dari ketua tim. Ketua tim dapat mengelola submission proyek.</p>
+        <p>Gunakan kode enrollment dari panitia, lalu buat tim baru atau masukkan kode undangan dari ketua tim.</p>
         <Link href="/catalog" className="text-link">Lihat proyek yang sudah tayang <ArrowRightIcon /></Link>
       </div>
       <div className="auth-card">
-        <div><span className="kicker">Akun baru</span><h2>Daftar peserta</h2><p>Voting tidak memerlukan akun ini.</p></div>
+        <div><span className="kicker">Akun baru</span><h2>Daftar peserta</h2><p>Email perlu diverifikasi sebelum login.</p></div>
         <AuthForm mode="register" />
       </div>
     </section>

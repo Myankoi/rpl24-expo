@@ -29,6 +29,10 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
             <span>Kelas</span>
             <div className="input-shell"><AcademicCapIcon className="icon" /><input name="className" required placeholder="Contoh: XI RPL 1" value={className} onChange={(event) => setClassName(event.target.value)} /></div>
           </label>
+          <label className="field">
+            <span>Kode enrollment edisi</span>
+            <div className="input-shell"><LockClosedIcon className="icon" /><input name="enrollmentCode" required placeholder="Kode dari panitia" autoComplete="one-time-code" /></div>
+          </label>
         </>
       )}
       <label className="field">

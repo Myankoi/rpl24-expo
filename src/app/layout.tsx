@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "RPL Expo 2026", template: "%s — RPL Expo 2026" },
-  description: "Katalog proyek dan People's Choice Voting RPL Expo 2026.",
+  title: { default: "RPL Expo", template: "%s — RPL Expo" },
+  description: "Katalog proyek dan People's Choice Voting RPL Expo.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

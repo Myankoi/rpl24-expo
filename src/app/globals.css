@@ -1,3 +1,4 @@
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .chip-logout { display: inline-grid; place-items: center; width: 32px; height: 32px; margin-left: 3px; border: 0; border-radius: 9px; color: var(--muted); background: transparent; cursor: pointer; transition: color .2s ease, background .2s ease; }
 .chip-logout:hover { color: #ff9caf; background: rgba(255,107,130,.09); }
 .chip-logout svg { width: 17px; }
@@ -86,6 +87,20 @@ a { color: inherit; text-decoration: none; } button, input, textarea, select { f
 
 /* Admin */
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }.stat-card { min-height: 150px; position: relative; display: flex; flex-direction: column; justify-content: end; overflow: hidden; border: 1px solid var(--line); border-radius: 18px; padding: 20px; background: var(--panel); }.stat-card > svg { position: absolute; width: 67px; right: 12px; top: 12px; color: rgba(96,229,255,.1); }.stat-card > span { color: var(--muted); font-size: .72rem; }.stat-card > strong { margin-block: 5px; font-size: 2.2rem; }.stat-card > small { color: var(--muted); font-size: .68rem; }.stat-live { border-color: rgba(87,227,160,.28); }.stat-live-dot { position: absolute; top: 22px; left: 20px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 14px var(--green); }.admin-controls { display: grid; grid-template-columns: 1fr 1fr .7fr; gap: 15px; margin-top: 20px; }.control-card { display: flex; flex-direction: column; justify-content: space-between; gap: 22px; }.control-card h2, .qr-shortcut h2 { margin-top: 6px; font-size: 1.25rem; }.control-card p, .qr-shortcut p { margin-top: 6px; color: var(--muted); font-size: .78rem; line-height: 1.5; }.control-card form .button { width: 100%; }.control-actions { display: grid; gap: 9px; }.qr-shortcut { display: flex; flex-direction: column; justify-content: center; gap: 17px; transition: border-color .18s, transform .18s; }.qr-shortcut:hover { transform: translateY(-3px); border-color: var(--line-strong); }.qr-shortcut > svg { width: 44px; color: var(--purple); }.admin-table-card { margin-top: 20px; overflow: hidden; }.admin-table-card .table-heading { padding: 24px 25px; margin: 0; border-bottom: 1px solid var(--line); }.admin-table-card .table-heading h2 { margin-top: 5px; font-size: 1.35rem; }.admin-table-card .table-heading > span { color: var(--muted); font-size: .76rem; }.admin-project-row { min-width: 890px; display: grid; grid-template-columns: minmax(270px, 1.4fr) 75px 120px minmax(365px, 1fr); align-items: center; gap: 15px; padding: 15px 24px; border-bottom: 1px solid var(--line); }.admin-project-list { overflow-x: auto; }.admin-project-main { display: flex; align-items: center; gap: 13px; }.booth-mini { width: 39px; height: 39px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--cyan); font-weight: 850; }.admin-project-main strong, .admin-project-main small, .admin-project-votes strong, .admin-project-votes small { display: block; }.admin-project-main strong { font-size: .84rem; }.admin-project-main small, .admin-project-votes small { margin-top: 4px; color: var(--muted); font-size: .68rem; }.review-form { display: grid; grid-template-columns: 74px 100px 1fr; gap: 7px; }.review-form input, .review-form select { min-width: 0; height: 39px; border: 1px solid var(--line); border-radius: 9px; padding: 0 8px; color: var(--text); background: var(--panel-light); }.review-form option { color: #111a36; }
+
+/* Status and lifecycle controls */
+.status-changes_requested { color: #ffe296; border-color: rgba(255,209,102,.25); }
+.control-actions select { width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 10px; padding: 0 10px; color: var(--text); background: var(--panel-light); }
+.control-actions select:focus { outline: 2px solid rgba(96,229,255,.3); outline-offset: 2px; }
+.control-actions option { color: #111a36; }
+.edition-list { display: grid; gap: 10px; margin-top: 22px; }
+.edition-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: rgba(255,255,255,.025); }
+.edition-row > div { min-width: 0; }
+.edition-row strong, .edition-row span { display: block; }
+.edition-row strong { font-size: .82rem; }
+.edition-row span { margin-top: 4px; overflow-wrap: anywhere; color: var(--muted); font-size: .68rem; }
+.edition-row > small { color: var(--green); font-size: .62rem; font-weight: 850; letter-spacing: .1em; }
+.edition-active { border-color: rgba(87,227,160,.3); background: rgba(87,227,160,.05); }
 
 /* Project review card layout */
 .admin-table-card .table-heading {
@@ -312,4 +327,14 @@ a { color: inherit; text-decoration: none; } button, input, textarea, select { f
   .hero, .catalog-section { scroll-snap-align: start; }
 }
 
+.ticket-center { max-width: 1000px; margin: 45px auto 0; }
+.ticket-generator { max-width: 620px; margin: auto; }
+.ticket-generator .button { margin-top: 18px; }
+.ticket-print-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 20px; }
+.ticket-card { display: flex; flex-direction: column; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 14px; padding: 15px 10px; background: #fff; color: #071126; text-align: center; }
+.ticket-card strong { overflow-wrap: anywhere; font-size: .62rem; letter-spacing: .04em; }
+.ticket-card small { font-size: .56rem; }
+@media (max-width: 680px) { .ticket-print-grid { grid-template-columns: repeat(2, 1fr); } }
+
 @media print { body { background: #fff; }.site-header, .site-footer, .qr-page > .page-heading, .print-button { display: none !important; }.site-main, .qr-page, .section-shell { width: 100%; margin: 0; padding: 0; }.qr-print-grid { display: block; max-width: none; }.qr-poster { width: 210mm; height: 297mm; page-break-after: always; border: 0; border-radius: 0; }.qr-poster:last-child { page-break-after: auto; } }
+@media print { .ticket-generator, .ticket-center > .print-button { display: none !important; }.ticket-print-grid { grid-template-columns: repeat(4, 1fr); }.ticket-card { break-inside: avoid; } }

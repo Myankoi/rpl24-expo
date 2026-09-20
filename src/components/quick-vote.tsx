@@ -9,9 +9,13 @@ import type { PublicProject } from "@/lib/types";
 export function QuickVote({ project, votingOpen }: { project: PublicProject; votingOpen: boolean }) {
   const [open, setOpen] = useState(false);
   const [voted, setVoted] = useState(false);
-  const close = useCallback(() => { setOpen(false); setVoted(hasVotedLocally()); }, []);
+  const close = useCallback(() => { setOpen(false); setVoted(hasVotedLocally(project.eventSlug ?? "active")); }, [project.eventSlug]);
 
-  useEffect(() => { setVoted(hasVotedLocally()); }, []);
+  useEffect(() => {
+    // localStorage is an external client-only source of truth for the badge.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setVoted(hasVotedLocally(project.eventSlug ?? "active"));
+  }, [project.eventSlug]);
 
   return (
     <>

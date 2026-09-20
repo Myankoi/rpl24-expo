@@ -5,7 +5,7 @@ import { logoutAction } from "@/app/actions/auth";
 import { CopyCodeButton } from "@/components/copy-code-button";
 import { StatusBadge } from "@/components/status-badge";
 import { SubmitButton } from "@/components/submit-button";
-import { getDashboardTeam, requireUser } from "@/lib/dal";
+import { getActiveEvent, getDashboardTeam, requireUser } from "@/lib/dal";
 
 export const metadata = { title: "Dashboard Tim" };
 export const dynamic = "force-dynamic";
@@ -13,13 +13,14 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage({ searchParams }: PageProps<"/dashboard">) {
   const profile = await requireUser();
   if (profile.isAdmin) redirect("/admin");
-  const [team, query] = await Promise.all([getDashboardTeam(profile.id), searchParams]);
+  const event = await getActiveEvent();
+  const [team, query] = await Promise.all([getDashboardTeam(profile.id, event), searchParams]);
   const message = typeof query.success === "string" ? query.success : typeof query.error === "string" ? query.error : null;
   const messageType = typeof query.error === "string" ? "error" : "success";
 
   return (
     <section className="dashboard-page section-shell">
-      <div className="dashboard-heading"><div><span className="eyebrow">PARTICIPANT DASHBOARD</span><h1>Halo, {profile.fullName.split(" ")[0]}.</h1><p>Kelola tim dan submission proyek untuk RPL Expo.</p></div><div className="profile-chip"><span>{profile.fullName.charAt(0)}</span><div><strong>{profile.fullName}</strong><small>{profile.className}</small></div><form action={logoutAction}><button className="chip-logout" type="submit" aria-label="Keluar" title="Keluar"><ArrowRightStartOnRectangleIcon /></button></form></div></div>
+      <div className="dashboard-heading"><div><span className="eyebrow">{event.displayName} · PARTICIPANT DASHBOARD</span><h1>Halo, {profile.fullName.split(" ")[0]}.</h1><p>Kelola tim dan submission proyek untuk edisi aktif.</p></div><div className="profile-chip"><span>{profile.fullName.charAt(0)}</span><div><strong>{profile.fullName}</strong><small>{profile.className}</small></div><form action={logoutAction}><button className="chip-logout" type="submit" aria-label="Keluar" title="Keluar"><ArrowRightStartOnRectangleIcon /></button></form></div></div>
       {message && <div className={`form-alert form-alert-${messageType}`}>{message}</div>}
 
       {!team ? (
@@ -29,6 +30,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             <form action={createTeamAction} className="stack-form">
               <label className="field"><span>Nama tim</span><input name="name" required minLength={2} maxLength={80} placeholder="Contoh: Syntax Squad" /></label>
               <label className="field"><span>Kelas</span><input name="className" required defaultValue={profile.className} /></label>
+              <label className="field"><span>Kode enrollment edisi</span><input name="enrollmentCode" autoComplete="one-time-code" placeholder="Wajib untuk akun lintas edisi" /><small>Lewati jika akun ini baru saja mendaftar pada edisi aktif.</small></label>
               <SubmitButton>Buat tim</SubmitButton>
             </form>
           </div>
@@ -36,6 +38,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
             <div className="card-icon"><UserGroupIcon /></div><h2>Gabung tim</h2><p>Minta kode undangan 8 karakter dari ketua tim.</p>
             <form action={joinTeamAction} className="stack-form">
               <label className="field"><span>Kode tim</span><input className="code-input" name="joinCode" required minLength={8} maxLength={8} placeholder="A1B2C3D4" /></label>
+              <label className="field"><span>Kode enrollment edisi</span><input name="enrollmentCode" autoComplete="one-time-code" placeholder="Wajib untuk akun lintas edisi" /><small>Lewati jika akun ini baru saja mendaftar pada edisi aktif.</small></label>
               <SubmitButton className="button button-ghost">Gabung tim</SubmitButton>
             </form>
           </div>
@@ -60,8 +63,7 @@ export default async function DashboardPage({ searchParams }: PageProps<"/dashbo
                 </div>
                 <label className="field"><span>Tagline singkat</span><input name="tagline" required maxLength={160} defaultValue={team.project?.tagline ?? ""} placeholder="Jelaskan value proyek dalam satu kalimat" /></label>
                 <label className="field"><span>Deskripsi proyek</span><textarea name="description" required minLength={20} maxLength={3000} rows={7} defaultValue={team.project?.description ?? ""} placeholder="Masalah yang diselesaikan, fitur utama, dan teknologi yang digunakan." /></label>
-                <div className="form-row form-row-three">
-                  <label className="field"><span>Nomor booth</span><input name="boothNumber" type="number" min={1} max={14} defaultValue={team.project?.boothNumber ?? ""} placeholder="Opsional" /></label>
+                <div className="form-row">
                   <label className="field"><span>Link demo</span><input name="demoUrl" type="url" defaultValue={team.project?.demoUrl ?? ""} placeholder="https://" /></label>
                   <label className="field"><span>Repository</span><input name="repoUrl" type="url" defaultValue={team.project?.repoUrl ?? ""} placeholder="https://github.com/..." /></label>
                 </div>

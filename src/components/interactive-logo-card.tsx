@@ -110,7 +110,7 @@ export function InteractiveLogoCard() {
         </div>
         <div className="hero-card-face hero-card-back" aria-hidden="true">
           <CodeBracketIcon />
-          <span>RPL EXPO 2026</span>
+          <span>RPL EXPO</span>
           <strong>CODE.<br />CREATE.<br /><em>INSPIRE.</em></strong>
           <small>SMK NEGERI 24 JAKARTA</small>
         </div>

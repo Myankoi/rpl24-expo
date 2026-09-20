@@ -1,64 +1,79 @@
-# RPL Expo 2026
+# RPL Expo
 
-Aplikasi katalog, manajemen submission, dan voting People's Choice untuk RPL Expo. Dibangun dengan Next.js 16, Supabase, dan Vercel.
+Aplikasi katalog, submission tim, event archive, dan People's Choice Voting untuk RPL Expo SMKN 24 Jakarta. Satu instalasi dapat menyimpan banyak edisi tahunan; hanya satu edisi yang aktif pada satu waktu.
 
-## Fitur
+## Fitur utama
 
-- Katalog publik 14 proyek dan halaman detail tiap booth
-- Voting tanpa login: pilih proyek, isi NIS/NIP, konfirmasi
-- Satu identitas hanya dapat memberikan satu suara; identitas disimpan sebagai HMAC hash
-- Login peserta, buat/gabung tim, dan upload submission proyek
-- Panel admin untuk review proyek, nomor booth, buka/tutup voting, dan publikasi hasil
-- Poster QR katalog/voting siap cetak
-- Winner reveal fullscreen dengan countdown, podium, animasi, dan confetti
+- Event-scoped catalog dengan arsip permanen di `/editions/[slug]`.
+- Tim dan submission yang dapat dipakai ulang oleh akun yang sama pada edisi berbeda.
+- Kategori dan kode booth fleksibel per edisi; tidak ada batas 14 proyek/booth di aplikasi.
+- Review organizer dengan status `submitted`, `changes_requested`, `approved`, dan `rejected`.
+- Voting berbasis tiket pengunjung sekali pakai, bukan fingerprint perangkat.
+- Generator batch tiket QR dari `/admin/qr`; token mentah hanya ditampilkan sekali.
+- Snapshot hasil dengan ranking seri/juara bersama, audit log, metadata dinamis, sitemap, dan robots.
+- Operasional tahunan dari `/admin/events`: buat draft edisi, atur kode enrollment, dan aktifkan edisi berikutnya tanpa mengubah kode aplikasi.
 
-## Menjalankan secara lokal
+## Menjalankan lokal
 
-Gunakan Node.js 20.9 atau lebih baru.
+Gunakan Node.js 22 atau lebih baru.
 
 ```bash
 cp .env.example .env.local
-npm install
+npm ci
 npm run dev
 ```
 
 Buka `http://localhost:3000`.
 
-## Setup Supabase
-
-1. Buat project Supabase.
-2. Terapkan seluruh file di `supabase/migrations/` sesuai urutan nama file, atau jalankan `supabase db push` setelah project di-link.
-3. Dari **Project Settings > API Keys**, salin publishable key dan secret key ke `.env.local`.
-4. Untuk persiapan acara yang singkat, buka **Authentication > Providers > Email** lalu nonaktifkan **Confirm email** agar akun peserta langsung aktif.
-5. Isi email panitia pada `ADMIN_EMAILS`. Pisahkan beberapa email dengan koma tanpa spasi.
-
-Contoh:
+## Environment
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 SUPABASE_SECRET_KEY=sb_secret_...
-VOTER_HASH_SECRET=hasil-random-minimal-32-karakter
+VOTER_HASH_SECRET=legacy-secret-minimal-32-karakter
+VOTING_TICKET_SECRET=secret-acak-minimal-32-karakter
+ENROLLMENT_CODE_SECRET=secret-acak-minimal-32-karakter
+EVENT_ENROLLMENT_CODE=kode-enrollment-edisi-aktif
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ADMIN_EMAILS=panitia@sekolah.sch.id
 ```
 
-Buat rahasia voter dengan:
+`VOTING_TICKET_SECRET` dan `ENROLLMENT_CODE_SECRET` harus stabil setelah event berjalan. Isi `EVENT_ENROLLMENT_CODE` hanya sebagai fallback untuk event legacy yang belum memiliki hash di database. Jangan masukkan secret ke repository.
 
-```bash
-openssl rand -hex 32
+## Supabase migration
+
+Terapkan migration secara berurutan pada project Supabase yang sama dengan `NEXT_PUBLIC_SUPABASE_URL`. Migration `20260920120000_multi_event_foundation.sql` harus dijalankan setelah schema awal; migration ini membuat event legacy `rpl-expo-2026`, melakukan backfill `event_id`, mengganti uniqueness menjadi per-event, dan mempertahankan kolom compatibility untuk satu release. Jangan menjalankan migration ini ulang pada database yang sudah berhasil menerapkannya.
+
+Pada database produksi:
+
+1. Backup database dan inventaris storage.
+2. Aktifkan maintenance/read-only mutation singkat.
+3. Terapkan migration dan verifikasi jumlah event, tim, proyek, vote, dan asset.
+4. Deploy aplikasi baru.
+5. Jalankan smoke test katalog, login, dashboard, admin, penerbitan tiket, voting, dan hasil.
+6. Buka kembali mutation setelah semua verifikasi lulus.
+
+Untuk setup melalui Supabase Dashboard, buka **SQL Editor**, jalankan seluruh file migration, lalu verifikasi tabel utama:
+
+```sql
+select to_regclass('public.events') as events_table;
+select count(*) as event_count from public.events;
 ```
 
-Jangan pernah membagikan atau memasukkan `SUPABASE_SECRET_KEY` dan `VOTER_HASH_SECRET` ke repository.
+`events_table` harus bernilai `public.events` dan minimal satu event aktif harus tersedia sebelum aplikasi baru dijalankan.
 
-## Deploy Vercel
+## Alur event
 
-1. Import repository ini ke Vercel dengan **Root Directory** `rpl24-expo` bila repository Git berada satu tingkat di atas folder ini.
-2. Masukkan keenam environment variable di atas untuk environment Production.
-3. Ubah `NEXT_PUBLIC_SITE_URL` menjadi domain produksi, misalnya `https://rpl-expo.vercel.app`.
-4. Deploy, lalu buat akun dengan email yang tercantum di `ADMIN_EMAILS`.
+Organizer memindahkan event dari panel admin melalui fase:
 
-Build check:
+`draft → registration → review → showcase → voting → closed → published → archived`
+
+Peserta mendaftar dengan kode enrollment, memverifikasi email, membuat/gabung tim, lalu mengirim proyek. Organizer menetapkan kategori, booth, review, batch tiket, status voting, dan publikasi hasil.
+
+Edisi yang sudah `published` atau `archived` tetap tersedia di `/editions` dan tidak memakai data edisi aktif. Pergantian edisi sebaiknya dilakukan saat maintenance window singkat agar tidak ada pendaftaran atau voting yang masuk di tengah pergantian.
+
+## Pemeriksaan lokal
 
 ```bash
 npm run lint
@@ -66,16 +81,16 @@ npx tsc --noEmit
 npm run build
 ```
 
-## Urutan operasional acara
+Untuk production, jalankan Next.js 16 dengan Node 22 dan pertahankan `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` stabil di seluruh instance.
 
-1. Tim membuat akun, membuat/gabung tim, lalu ketua mengirim proyek.
-2. Admin membuka `/admin`, mengisi nomor booth dan meng-approve seluruh proyek.
-3. Admin mencetak QR dari `/admin/qr` dan meletakkannya di pintu/area auditorium.
-4. Setelah pengunjung keluar menuju booth, admin menekan **Buka voting**.
-5. Setelah waktu habis, admin menekan **Tutup voting**.
-6. Tampilkan `/admin/reveal` di layar utama dan tekan **Mulai pengumuman**.
-7. Setelah reveal selesai, admin menekan **Publikasikan hasil** agar `/results` terbuka untuk publik.
+## Troubleshooting schema
 
-## Catatan voting
+Jika log menampilkan `PGRST205` dan menyebut tabel `public.events` tidak ditemukan, aplikasi baru sudah ter-deploy tetapi database masih memakai schema lama. Pastikan URL project pada `.env` benar, lalu jalankan seluruh migration multi-edition dari Supabase Dashboard → SQL Editor, terutama [`20260920120000_multi_event_foundation.sql`](supabase/migrations/20260920120000_multi_event_foundation.sql). Setelah migration berhasil dan query verifikasi di atas menunjukkan `public.events`, restart dev server.
 
-Database memakai unique constraint dan fungsi transaksi atomik, sehingga dua request bersamaan dari identitas yang sama tidak dapat menghasilkan dua vote. NIS/NIP tidak disimpan mentah. Sistem sengaja tidak memvalidasi nomor terhadap daftar siswa agar antrean voting tetap sederhana; jika validasi resmi dibutuhkan, tambahkan whitelist identitas sebelum acara.
+Jika tabel sudah ada tetapi PostgREST masih tidak mengenalinya, jalankan di SQL Editor lalu coba lagi:
+
+```sql
+NOTIFY pgrst, 'reload schema';
+```
+
+Jika migration berhenti karena error SQL, hentikan deployment aplikasi baru dan selesaikan error migration terlebih dahulu; jangan menghapus tabel atau mengulang script secara manual tanpa memeriksa migration yang sudah berhasil diterapkan.
